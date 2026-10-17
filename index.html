@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>萌宠养成记 · Pet Buddy — 和宝贝一起养大你的小宠物</title>
+<meta name="description" content="一款专为孩子与家长设计的电子宠物养成游戏：表扬加分、升级进化、金币商店、每日打卡，培养好习惯。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐾</text></svg>">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="bg-decor" aria-hidden="true"></div>
+
+<div id="app">
+
+  <!-- ============ 欢迎屏 ============ -->
+  <section id="screen-welcome" class="screen active">
+    <div class="welcome-box">
+      <div class="welcome-pets" id="welcome-pets"></div>
+      <h1 class="game-logo">萌宠养成记</h1>
+      <p class="game-sub">PET BUDDY · 和宝贝一起养大小宠物</p>
+      <p class="welcome-desc">两个孩子 · 两只宠物 · 一份成长日记<br>生活中每一次值得表扬的小进步，都是宠物的口粮与星光 ✨</p>
+      <button class="btn btn-primary btn-big" id="btn-start">开始养育之旅</button>
+      <button class="btn btn-ghost" id="btn-continue" style="display:none">继续上次的存档</button>
+    </div>
+  </section>
+
+  <!-- ============ 设置屏 ============ -->
+  <section id="screen-setup" class="screen">
+    <div class="setup-box">
+      <div class="setup-steps">
+        <span class="step-dot active" data-step="1">1 小主人</span>
+        <span class="step-dot" data-step="2">2 小伙伴</span>
+      </div>
+
+      <!-- 第一步：主人信息 -->
+      <div class="setup-pane" data-pane="1">
+        <h2>第一位小主人</h2>
+        <label class="field">
+          <span>孩子的名字</span>
+          <input type="text" id="setup-kid1-name" maxlength="8" placeholder="例如：朵朵">
+        </label>
+        <h2 style="margin-top:22px">第二位小主人</h2>
+        <label class="field">
+          <span>孩子的名字</span>
+          <input type="text" id="setup-kid2-name" maxlength="8" placeholder="例如：乐乐">
+        </label>
+        <button class="btn btn-primary btn-big" id="setup-next-1">下一步：挑选宠物</button>
+      </div>
+
+      <!-- 第二步：选宠物 -->
+      <div class="setup-pane" data-pane="2" style="display:none">
+        <div class="pick-block" id="pick-kid1">
+          <h2 id="pick-kid1-title">给 朵朵 选一只宠物</h2>
+          <div class="pet-grid" id="pet-grid-1"></div>
+        </div>
+        <div class="pick-block" id="pick-kid2">
+          <h2 id="pick-kid2-title">给 乐乐 选一只宠物</h2>
+          <div class="pet-grid" id="pet-grid-2"></div>
+        </div>
+        <div class="pick-block">
+          <label class="field">
+            <span>宠物昵称（可分别填写，留空则用默认名）</span>
+          </label>
+          <div class="name-row">
+            <input type="text" id="setup-pet1-name" maxlength="8" placeholder="宠物 1 昵称">
+            <input type="text" id="setup-pet2-name" maxlength="8" placeholder="宠物 2 昵称">
+          </div>
+        </div>
+        <button class="btn btn-primary btn-big" id="setup-finish">🎉 一起开始养育！</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 主屏 ============ -->
+  <section id="screen-main" class="screen">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="logo-mini">🐾 萌宠养成记</span>
+        <span class="checkin-chip" id="checkin-chip" title="每日打卡"></span>
+      </div>
+      <div class="topbar-right">
+        <button class="icon-btn" id="btn-diary" title="成长日记">📖</button>
+        <button class="icon-btn" id="btn-badges" title="成就墙">🏆</button>
+        <button class="icon-btn" id="btn-shop" title="宠物商店">🛍️</button>
+        <button class="icon-btn" id="btn-settings" title="设置">⚙️</button>
+      </div>
+    </header>
+
+    <div class="board" id="board">
+      <!-- 宠物卡片由 JS 渲染 -->
+    </div>
+
+    <nav class="actionbar">
+      <button class="act-btn praise" id="btn-praise">
+        <span class="act-icon">🌟</span>
+        <span class="act-label">表扬加分</span>
+      </button>
+      <button class="act-btn" id="btn-feed">
+        <span class="act-icon">🍖</span>
+        <span class="act-label">喂食</span>
+      </button>
+      <button class="act-btn" id="btn-play">
+        <span class="act-icon">🎾</span>
+        <span class="act-label">玩耍</span>
+      </button>
+      <button class="act-btn" id="btn-wash">
+        <span class="act-icon">🧼</span>
+        <span class="act-label">洗澡</span>
+      </button>
+    </nav>
+  </section>
+
+</div>
+
+<div id="modal-root"></div>
+<div id="toast-root"></div>
+<div id="fx-layer" aria-hidden="true"></div>
+
+<script src="js/data.js"></script>
+<script src="js/art.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/game.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
