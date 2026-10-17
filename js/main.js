@@ -7,6 +7,31 @@
 
   /* ================= 启动 ================= */
 
+  /* 背景动态装饰：飘云 + 闪烁星星 */
+  (function fillBgDecor() {
+    const decor = document.getElementById("bg-decor");
+    if (!decor) return;
+    for (let i = 0; i < 3; i++) {
+      const c = document.createElement("div");
+      c.className = "bg-cloud";
+      c.textContent = "☁️";
+      c.style.top = (6 + Math.random() * 42) + "vh";
+      c.style.fontSize = (26 + Math.random() * 24) + "px";
+      c.style.animationDuration = (70 + Math.random() * 60) + "s";
+      c.style.animationDelay = (-i * 28) + "s";
+      decor.appendChild(c);
+    }
+    for (let i = 0; i < 7; i++) {
+      const s = document.createElement("div");
+      s.className = "bg-star";
+      s.textContent = ["✨", "⭐", "🌟"][i % 3];
+      s.style.left = Math.random() * 95 + "vw";
+      s.style.top = Math.random() * 92 + "vh";
+      s.style.animationDelay = (Math.random() * 3) + "s";
+      decor.appendChild(s);
+    }
+  })();
+
   /* 欢迎屏宠物展示（随机 4 只） */
   (function fillWelcomePets() {
     const box = document.getElementById("welcome-pets");
@@ -142,6 +167,10 @@
         }
         Game.save();
         AudioFX.play(action === "wash" ? "wash" : action === "play" ? "play" : "eat");
+        /* 先重绘再在新节点上播放表演：吃东西 / 扑跳 / 抖水 */
+        UI.renderAll();
+        const svg = document.querySelector(`.pet-card[data-kid="${idx}"] .pet-svg`);
+        if (svg) PetAnim.play(svg, action === "feed" ? "eat" : action === "play" ? "jump" : "shake");
         const card = document.querySelector(`.pet-card[data-kid="${idx}"]`);
         if (card) {
           const rect = card.getBoundingClientRect();
@@ -160,7 +189,6 @@
         if (r.badges && r.badges.length) {
           r.badges.forEach(bd => setTimeout(() => { AudioFX.play("badge"); UI.toast(`🏆 解锁成就「${bd.name}」！`); }, 900));
         }
-        UI.renderAll();
         m.close();
         UI.modal({ title: "💕", body: `<p style="text-align:center;font-size:15px;font-weight:700;color:var(--ink-soft)">${r.line}</p>`, actions: [{ label: "好的", cls: "btn-primary" }] });
       };

@@ -169,7 +169,11 @@ const UI = (() => {
         ${leader ? `<div class="leader-flag">👑 领先者</div>` : ""}
         <div class="pet-head">
           <div class="pet-avatar-wrap">
-            <div class="pet-avatar" data-pat="${idx}" title="点我互动">${svg}</div>
+            <div class="pet-avatar" data-pat="${idx}" title="点我互动">
+              ${svg}
+              <span class="pet-stage-deco d1">🌿</span>
+              <span class="pet-stage-deco d2">🌼</span>
+            </div>
             <div class="pet-stage-tag">${stage.name}</div>
             <div class="pet-acc-row">${accRow}</div>
           </div>
@@ -199,8 +203,15 @@ const UI = (() => {
   function renderBoard() {
     const st = Game.state;
     const board = document.getElementById("board");
+    /* 清理旧宠物的动画定时器，防止泄漏 */
+    PetAnim.detachAll();
     const leader = totalExp(st.kids[0]) >= totalExp(st.kids[1]) ? 0 : 1;
     board.innerHTML = petCardHTML(st.kids[0], 0, leader === 0) + petCardHTML(st.kids[1], 1, leader === 1);
+
+    /* 挂载宠物动画系统（随机待机动作） */
+    board.querySelectorAll(".pet-svg").forEach(svg => {
+      PetAnim.attach(svg, +svg.closest(".pet-card").dataset.kid);
+    });
 
     /* 互动事件 */
     board.querySelectorAll(".pet-avatar").forEach(av => {
@@ -208,9 +219,9 @@ const UI = (() => {
         const idx = +av.dataset.pat;
         const kid = st.kids[idx];
         AudioFX.play("pop");
-        av.style.animation = "none";
-        void av.offsetWidth;
-        av.style.animation = "patBounce .5s cubic-bezier(.22,.9,.32,1)";
+        const svg = av.querySelector(".pet-svg");
+        if (svg) PetAnim.play(svg, "hop");
+        PetAnim.spawnEmote(svg, Math.random() < 0.5 ? "💖" : "✨");
         if (kid.stats.mood < 96) { kid.stats.mood = Game.clamp(kid.stats.mood + 1, 0, 100); }
         Game.save();
         /* 刷新台词 */
@@ -323,6 +334,12 @@ const UI = (() => {
     Game.save();
     AudioFX.play("praise");
 
+    /* 先重绘（新形态/新状态），再在新节点上播放庆祝动作 */
+    renderBoard();
+    renderCheckinChip();
+    const svg = document.querySelector(`.pet-card[data-kid="${kidIdx}"] .pet-svg`);
+    if (svg) PetAnim.play(svg, "dance");
+
     /* 飘字定位到对应宠物卡片 */
     const card = document.querySelector(`.pet-card[data-kid="${kidIdx}"]`);
     if (card) {
@@ -336,9 +353,10 @@ const UI = (() => {
       const kid = Game.state.kids[kidIdx];
       setTimeout(() => {
         AudioFX.play("level");
+        if (svg) PetAnim.play(svg, "spin");
         levelupBanner(kid.petName, r.leveled[r.leveled.length - 1], levelUpLine(r.leveled[r.leveled.length - 1]));
         fxConfetti();
-      }, 350);
+      }, 600);
     }
     if (r.badges.length) {
       setTimeout(() => {
@@ -349,8 +367,6 @@ const UI = (() => {
     if (note) {
       setTimeout(() => toast(`📝 已记入成长日记：${note}`), 700);
     }
-    renderBoard();
-    renderCheckinChip();
   }
 
   /* ================= 商店弹窗 ================= */
