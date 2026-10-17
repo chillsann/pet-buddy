@@ -173,7 +173,7 @@ input { font-family: inherit; }
   background: rgba(250, 246, 239, .88); backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(236, 227, 212, .7);
 }
-.logo-mini { font-weight: 900; font-size: 17px; letter-spacing: .04em; }
+.logo-mini { font-weight: 900; font-size: 17px; letter-spacing: .04em; white-space: nowrap; }
 .topbar-left { display: flex; align-items: center; gap: 12px; }
 .checkin-chip {
   font-size: 12px; font-weight: 700; color: var(--orange-deep);
@@ -817,6 +817,108 @@ input { font-family: inherit; }
 }
 
 /* ============================================================
+   3D 宠物舞台（v2.0）
+   ============================================================ */
+.pet-stage {
+  position: relative;
+  height: 236px;
+  margin: -6px -6px 14px;
+  border-radius: 22px;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 30%, #ffffff 0%, rgba(255,255,255,.6) 42%, transparent 72%),
+    linear-gradient(180deg, var(--tint, #fde8d4) 0%, #ffffff 88%);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+.pet-stage:active { cursor: grabbing; }
+.stage-bg {
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 50% 24%, rgba(255,255,255,.85), transparent 62%);
+  pointer-events: none;
+}
+/* 舞台地面（与 3D 阴影叠加） */
+.stage-floor {
+  position: absolute; left: 50%; bottom: 7%; width: 62%; height: 15%;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse, rgba(138,111,77,.2) 0%, transparent 68%);
+  border-radius: 50%; pointer-events: none;
+}
+.pet3d-canvas {
+  position: absolute; inset: 0; width: 100% !important; height: 100% !important;
+  display: block; z-index: 2;
+}
+.stage-tag {
+  position: absolute; left: 12px; top: 12px; z-index: 3;
+  font-size: 11px; font-weight: 800; color: var(--ink-soft);
+  background: rgba(255,255,255,.78); backdrop-filter: blur(4px);
+  padding: 4px 11px; border-radius: 999px; border: 1px solid rgba(255,255,255,.9);
+}
+.stage-lv {
+  position: absolute; right: 12px; top: 12px; z-index: 3;
+  font-size: 11px; font-weight: 900; color: #fff;
+  background: linear-gradient(135deg, #8fd07f, var(--green));
+  padding: 4px 11px; border-radius: 999px;
+  box-shadow: 0 3px 8px rgba(127,176,105,.35);
+}
+.stage-hint {
+  position: absolute; bottom: 9px; left: 50%; transform: translateX(-50%); z-index: 3;
+  font-size: 10px; font-weight: 700; color: rgba(74,64,52,.32);
+  letter-spacing: .08em; pointer-events: none;
+  transition: opacity .3s;
+}
+.stage-deco {
+  position: absolute; z-index: 3; font-size: 17px; pointer-events: none;
+  opacity: .85; animation: decoGrow 3.4s ease-in-out infinite;
+}
+.stage-deco.d1 { left: 16px; bottom: 22%; }
+.stage-deco.d2 { right: 18px; bottom: 18%; animation-delay: 1.1s; }
+.stage-deco.d3 { right: 26%; top: 22%; font-size: 13px; animation-delay: 2s; }
+
+/* 2D 回退模式 */
+.pet-stage.is-2d { cursor: pointer; }
+.pet-stage.is-2d .pet-avatar {
+  position: absolute; left: 50%; top: 50%; z-index: 2;
+  transform: translate(-50%, -46%);
+  display: flex; width: 160px; height: 160px;
+}
+
+/* 信息区 */
+.pet-info { padding: 0 6px; }
+.pet-info .pet-name-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+.pet-info .coin-line { margin-top: 2px; margin-bottom: 8px; }
+.pet-info .exp-wrap { margin-top: 0; }
+.coin-label { font-size: 11px; font-weight: 700; color: var(--ink-faint); margin-left: 2px; }
+.pet-acc-empty { font-size: 11px; color: var(--ink-faint); }
+.pet-info .pet-acc-row { justify-content: flex-start; margin-top: 10px; }
+
+/* 欢迎屏存档提示 */
+.btn-text {
+  display: block; margin: 12px auto 0; font-size: 13px; font-weight: 700;
+  color: var(--ink-faint); text-decoration: underline; text-underline-offset: 3px;
+  padding: 6px 10px; border-radius: 8px;
+}
+.btn-text:hover { color: var(--ink-soft); }
+.save-hint {
+  margin-top: 16px; font-size: 11px; color: var(--ink-faint); font-weight: 600;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+.save-hint::before { content: "🔒"; font-size: 12px; }
+
+/* 存档码 */
+.save-code-box {
+  width: 100%; height: 150px; resize: vertical;
+  background: var(--bg); border: 1.5px solid var(--line); border-radius: 14px;
+  padding: 12px 14px; font-size: 12px; line-height: 1.7; color: var(--ink-soft);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  outline: none; word-break: break-all;
+}
+.save-code-box:focus { border-color: var(--orange); }
+.save-code-tip { font-size: 11px; color: var(--ink-faint); margin-top: 8px; text-align: center; }
+.save-ok { font-size: 12px; font-weight: 800; color: var(--green); }
+
+/* ============================================================
    响应式
    ============================================================ */
 @media (max-width: 900px) {
@@ -824,13 +926,17 @@ input { font-family: inherit; }
 }
 @media (max-width: 700px) {
   .board { grid-template-columns: 1fr; gap: 14px; padding: 14px; }
-  .pet-card { padding: 16px 16px 14px; }
+  .pet-card { padding: 14px 14px 14px; }
+  .pet-stage { height: 196px; margin: -2px -2px 12px; }
+  .stage-hint { display: none; }
   .pet-avatar { width: 96px; height: 96px; }
   .pet-avatar svg { width: 84%; height: 84%; }
   .pet-name { font-size: 19px; }
-  .topbar { padding: 10px 14px; }
-  .icon-btn { width: 38px; height: 38px; font-size: 17px; }
-  .logo-mini { font-size: 15px; }
+  .topbar { padding: 10px 12px; }
+  .icon-btn { width: 36px; height: 36px; font-size: 16px; }
+  .logo-mini { font-size: 13px; letter-spacing: .02em; }
+  .topbar-left { gap: 7px; }
+  .topbar-right { gap: 5px; }
   .checkin-chip { font-size: 11px; padding: 4px 10px; }
   .welcome-box { padding: 34px 22px 30px; }
   .game-logo { font-size: 34px; }

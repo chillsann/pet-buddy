@@ -351,6 +351,24 @@ const Game = (() => {
     } catch (e) { return false; }
   }
 
+  /* ---------- 存档码（跨设备备份/恢复，无需服务器） ---------- */
+  function exportCode() {
+    const clone = JSON.parse(JSON.stringify(state));
+    clone.history = (clone.history || []).slice(0, 30); // 控制长度
+    const json = JSON.stringify(clone);
+    const b64 = btoa(unescape(encodeURIComponent(json)));
+    return "PB1-" + b64;
+  }
+
+  function importCode(code) {
+    try {
+      const clean = String(code).trim().replace(/\s+/g, "").replace(/^PB1-/, "");
+      if (!clean) return false;
+      const json = decodeURIComponent(escape(atob(clean)));
+      return importData(json);
+    } catch (e) { return false; }
+  }
+
   /* ================= 对外 ================= */
 
   return {
@@ -358,7 +376,7 @@ const Game = (() => {
     freshState, save, load, hasSave, newGame, reset,
     applyDecay, praise, care, careRemain, buy, toggleAcc,
     canCheckin, checkin, checkBadges,
-    exportData, importData, log,
+    exportData, importData, exportCode, importCode, log,
     fmtTime, todayStr, clamp,
   };
 })();

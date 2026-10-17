@@ -40,25 +40,66 @@
     box.innerHTML = pool.map(sp => Art.petIconSVG(sp.id)).join("");
   })();
 
-  if (Game.hasSave()) {
-    document.getElementById("btn-continue").style.display = "";
+  /* ================= 启动：优先续玩存档 ================= */
+
+  const hasSave = Game.hasSave();
+  if (hasSave) {
+    const startBtn = document.getElementById("btn-start");
+    startBtn.textContent = "继续游戏 · 宠物在等你 🐾";
+    document.getElementById("btn-continue").style.display = "none";
+    document.getElementById("btn-newrun").style.display = "";
+    const hint = document.getElementById("save-hint");
+    hint.style.display = "";
+    hint.textContent = "进度已自动保存在本设备，不会丢失";
   }
 
   document.getElementById("btn-start").onclick = () => {
     AudioFX.play("click");
-    UI.showScreen("screen-setup");
-    renderPetGrids();
+    if (Game.hasSave()) { continueGame(); }
+    else { enterSetup(); }
   };
 
   document.getElementById("btn-continue").onclick = () => {
     AudioFX.play("click");
+    continueGame();
+  };
+
+  document.getElementById("btn-newrun").onclick = () => {
+    AudioFX.play("click");
+    UI.modal({
+      title: "重新开始新游戏？",
+      sub: "当前两只宠物的成长记录会被新游戏覆盖。建议先在「设置 → 存档码」里备份。",
+      actions: [
+        { label: "取消", cls: "btn-plain" },
+        {
+          label: "确认重新开始", cls: "btn-danger", fn: () => {
+            try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* ignore */ }
+            enterSetup();
+          }
+        },
+      ],
+    });
+  };
+
+  function continueGame() {
     if (Game.load()) {
       Game.applyDecay();
       Game.save();
       enterGame();
       UI.toast("欢迎回来！宠物们很想你～");
+    } else {
+      UI.toast("存档读取失败，请重新开始");
+      enterSetup();
     }
-  };
+  }
+
+  function enterSetup() {
+    UI.showScreen("screen-setup");
+    renderPetGrids();
+  }
+
+  /* 定时自动保存（每 20 秒），防止意外关闭丢失 */
+  setInterval(() => { if (Game.state) Game.save(); }, 20000);
 
   /* ================= 设置流程 ================= */
 
@@ -169,8 +210,7 @@
         AudioFX.play(action === "wash" ? "wash" : action === "play" ? "play" : "eat");
         /* 先重绘再在新节点上播放表演：吃东西 / 扑跳 / 抖水 */
         UI.renderAll();
-        const svg = document.querySelector(`.pet-card[data-kid="${idx}"] .pet-svg`);
-        if (svg) PetAnim.play(svg, action === "feed" ? "eat" : action === "play" ? "jump" : "shake");
+        UI.playAction(idx, action === "feed" ? "eat" : action === "play" ? "jump" : "shake");
         const card = document.querySelector(`.pet-card[data-kid="${idx}"]`);
         if (card) {
           const rect = card.getBoundingClientRect();
